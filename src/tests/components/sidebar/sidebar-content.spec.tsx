@@ -56,6 +56,16 @@ describe('SidebarContent', () => {
       expect(screen.getByText(input[0].title)).toBeInTheDocument();
       expect(screen.getAllByRole('paragraph')).toHaveLength(input.length);
     });
+
+    it.only('should update the search field when the user types in it', async () => {
+      const text = 'IA';
+      makeSut();
+      const searchInput = screen.getByPlaceholderText(/buscar prompts.../i);
+      expect(searchInput).toBeInTheDocument();
+
+      await user.type(searchInput, text);
+      expect(searchInput).toHaveValue(text);
+    });
   });
 
   describe('SidebarContent - Collapsed State', () => {
