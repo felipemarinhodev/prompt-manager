@@ -57,7 +57,7 @@ describe('SidebarContent', () => {
       expect(screen.getAllByRole('paragraph')).toHaveLength(input.length);
     });
 
-    it.only('should update the search field when the user types in it', async () => {
+    it('should update the search field when the user types in it', async () => {
       const text = 'IA';
       makeSut();
       const searchInput = screen.getByPlaceholderText(/buscar prompts.../i);
@@ -106,6 +106,30 @@ describe('SidebarContent', () => {
       });
       await user.click(newPromptButton);
       expect(pushMock).toHaveBeenCalledWith('/new');
+    });
+  });
+
+  describe('SidebarContent - Search', () => {
+    it('should navigate with codified URL when the user types in the search field', async () => {
+      makeSut();
+      const text = 'A B';
+
+      const searchInput = screen.getByPlaceholderText(/buscar prompts.../i);
+      await user.type(searchInput, text);
+      expect(pushMock).toHaveBeenCalled();
+
+      const lastCall = pushMock.mock.calls.at(-1);
+      expect(lastCall?.[0]).toBe('/?q=A%20B');
+    });
+    it('should clear the URL when the user clears the search field', async () => {
+      makeSut();
+      const text = 'A B';
+      const searchInput = screen.getByPlaceholderText(/buscar prompts.../i);
+      await user.type(searchInput, text);
+      await user.clear(searchInput);
+
+      const lastCall = pushMock.mock.calls.at(-1);
+      expect(lastCall?.[0]).toBe('/');
     });
   });
 });
