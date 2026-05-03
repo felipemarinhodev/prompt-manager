@@ -6,11 +6,13 @@ import { render, screen } from '@/lib/test-utils';
 import userEvent from '@testing-library/user-event';
 
 const pushMock = jest.fn();
+let mockSearchParams = new URLSearchParams();
 
 jest.mock('next/navigation', () => ({
   useRouter: () => ({
     push: pushMock,
   }),
+  useSearchParams: () => mockSearchParams,
 }));
 
 const initialPrompts = [
@@ -131,5 +133,15 @@ describe('SidebarContent', () => {
       const lastCall = pushMock.mock.calls.at(-1);
       expect(lastCall?.[0]).toBe('/');
     });
+  });
+
+  it('should initialize the search field with the query from the URL', () => {
+    const text = 'ABC';
+    const searchParams = new URLSearchParams(`q=${text}`);
+    mockSearchParams = searchParams;
+    makeSut();
+
+    const searchInput = screen.getByPlaceholderText(/buscar prompts.../i);
+    expect(searchInput).toHaveValue(text);
   });
 });

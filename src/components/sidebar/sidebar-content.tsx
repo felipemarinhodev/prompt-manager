@@ -8,7 +8,7 @@ import {
   Plus as AddIcon,
   ArrowRightToLine,
 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Logo } from '../logo';
 import { Input } from '../ui/input';
 
@@ -24,7 +24,8 @@ export type SidebarContentProps = {
 
 export const SidebarContent = ({ prompts }: SidebarContentProps) => {
   const router = useRouter();
-  const [query, setQuery] = useState('');
+  const searchParams = useSearchParams();
+  const [query, setQuery] = useState(searchParams.get('q') || '');
 
   const [isCollapsed, setIsCollapsed] = useState(false);
   const collapseSidebar = () => setIsCollapsed(true);
