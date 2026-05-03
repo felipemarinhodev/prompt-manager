@@ -59,6 +59,15 @@ export const SidebarContent = ({ prompts }: SidebarContentProps) => {
               />
             </Button>
           </header>
+          <div className="flex flex-col items-center space-y-4">
+            <Button
+              onClick={handleNewPrompt}
+              aria-label="Novo prompt"
+              title="Novo prompt"
+            >
+              <AddIcon className="h-5 w-5 text-white" />
+            </Button>
+          </div>
         </section>
       )}
 
@@ -112,9 +121,14 @@ export const SidebarContent = ({ prompts }: SidebarContentProps) => {
               </Button>
             </div>
           </section>
+          <nav
+            className="flex-1 overflow-auto px-6 pb-6"
+            aria-label="Lista de prompts"
+          >
+            <PromptList prompts={prompts} />
+          </nav>
         </>
       )}
-      <PromptList prompts={prompts} />
     </aside>
   );
 };
