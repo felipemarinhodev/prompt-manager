@@ -5,6 +5,12 @@ import {
 import { render, screen } from '@/lib/test-utils';
 import userEvent from '@testing-library/user-event';
 
+jest.mock('@/app/actions/prompt.actions', () => ({
+  searchPromptAction: jest
+    .fn()
+    .mockResolvedValue({ success: true, prompts: [] }),
+}));
+
 const pushMock = jest.fn();
 let mockSearchParams = new URLSearchParams();
 
