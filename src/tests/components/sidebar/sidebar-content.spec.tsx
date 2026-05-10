@@ -91,6 +91,33 @@ describe('SidebarContent', () => {
       });
       expect(expandButton).not.toBeInTheDocument();
     });
+    it('should expand the sidebar when the expand button is clicked', async () => {
+      makeSut();
+      const collapseButton = screen.getByRole('button', {
+        name: /Minimizar sidebar/i,
+      });
+      await user.click(collapseButton);
+
+      const expandButton = screen.getByRole('button', {
+        name: /expandir sidebar/i,
+      });
+      expect(expandButton).toBeVisible();
+      await user.click(expandButton);
+
+      expect(
+        screen.getByRole('button', {
+          name: /Minimizar sidebar/i,
+        })
+      ).toBeVisible();
+      expect(
+        screen.queryByRole('button', {
+          name: /expandir sidebar/i,
+        })
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByRole('navigation', { name: /lista de prompts/i })
+      ).toBeInTheDocument();
+    });
     it('should render the collapsed and show the button to expand', async () => {
       makeSut();
       const collapseButton = screen.getByRole('button', {
@@ -154,6 +181,17 @@ describe('SidebarContent', () => {
       const lastCall = pushMock.mock.calls.at(-1);
       expect(lastCall?.[0]).toBe('/?q=A%20B');
     });
+    it('should submit the form when the user types in the search field', async () => {
+      const submitSpy = jest
+        .spyOn(HTMLFormElement.prototype, 'requestSubmit')
+        .mockImplementation(() => undefined);
+      makeSut();
+
+      const searchInput = screen.getByPlaceholderText(/buscar prompts.../i);
+      await user.type(searchInput, 'IA');
+      expect(submitSpy).toHaveBeenCalled();
+      submitSpy.mockRestore();
+    });
     it('should clear the URL when the user clears the search field', async () => {
       makeSut();
       const text = 'A B';
@@ -164,6 +202,20 @@ describe('SidebarContent', () => {
       const lastCall = pushMock.mock.calls.at(-1);
       expect(lastCall?.[0]).toBe('/');
     });
+  });
+
+  it('should automatically submit when assembling a query if there is one', async () => {
+    const submitSpy = jest
+      .spyOn(HTMLFormElement.prototype, 'requestSubmit')
+      .mockImplementation(() => undefined);
+
+    const text = 'text';
+    const searchParams = new URLSearchParams(`q=${text}`);
+    mockSearchParams = searchParams;
+    makeSut();
+
+    expect(submitSpy).toHaveBeenCalled();
+    submitSpy.mockRestore();
   });
 
   it('should initialize the search field with the query from the URL', () => {
