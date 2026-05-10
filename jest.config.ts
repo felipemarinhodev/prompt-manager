@@ -1,4 +1,4 @@
-import createJestConfig from 'next/jest';
+import createJestConfig from 'next/jest.js';
 
 const config = createJestConfig({
   dir: './',
@@ -14,6 +14,7 @@ const config = createJestConfig({
     '/e2e/',
     '/src/components/ui/',
     '/src/lib/',
+    '/src/generated/',
   ],
   testPathIgnorePatterns: [
     '<rootDir>/node_modules/',
