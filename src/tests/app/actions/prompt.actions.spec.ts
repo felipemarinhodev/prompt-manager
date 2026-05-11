@@ -1,9 +1,18 @@
-import { searchPromptAction } from '@/app/actions/prompt.actions';
+import {
+  createPromptAction,
+  searchPromptAction,
+} from '@/app/actions/prompt.actions';
 
 jest.mock('@/lib/prisma', () => ({ prisma: {} }));
 
-const mockedSearchExecute = jest.fn();
+const mockedCreateExecute = jest.fn();
+jest.mock('@/core/application/prompts/create-prompt.use-case', () => ({
+  CreatePromptUseCase: jest.fn().mockImplementation(() => ({
+    execute: mockedCreateExecute,
+  })),
+}));
 
+const mockedSearchExecute = jest.fn();
 jest.mock('@/core/application/prompts/search-prompts.use-case', () => ({
   SearchPromptsUseCase: jest.fn().mockImplementation(() => ({
     execute: mockedSearchExecute,
@@ -13,7 +22,54 @@ jest.mock('@/core/application/prompts/search-prompts.use-case', () => ({
 describe('Server Actions: Prompt', () => {
   beforeEach(() => {
     mockedSearchExecute.mockReset();
+    mockedCreateExecute.mockReset();
   });
+
+  describe.only('CreatePromptAction', () => {
+    it('should create a prompt successfully', async () => {
+      mockedCreateExecute.mockResolvedValue(undefined);
+
+      const data = {
+        title: 'New Prompt',
+        content: 'Content of the new prompt',
+      };
+      const result = await createPromptAction(data);
+
+      expect(mockedCreateExecute).toHaveBeenCalledWith(data);
+      expect(result?.success).toBe(true);
+      expect(result?.message).toBe('Prompt criado com sucesso');
+    });
+    it('should return an validation error when the data is empty', async () => {
+      const data = {
+        title: '',
+        content: '',
+      };
+
+      const result = await createPromptAction(data);
+
+      expect(result?.success).toBe(false);
+      expect(result?.message).toBe('Erro de validação');
+      expect(result?.errors).toEqual({
+        title: ['O título é obrigatório'],
+        content: ['O conteúdo é obrigatório'],
+      });
+    });
+
+    it('should return an error when the prompt already exists', async () => {
+      mockedCreateExecute.mockRejectedValue(new Error('PROMPT_ALREADY_EXISTS'));
+
+      const data = {
+        title: 'Existing Prompt',
+        content: 'Content',
+      };
+
+      const result = await createPromptAction(data);
+
+      expect(result?.success).toBe(false);
+      expect(result?.message).toBe('Este prompt já existe');
+    });
+  });
+
   describe('SearchPromptAction', () => {
     it('should return success when the term of search is not empty', async () => {
       const input = [{ id: '1', title: 'AI', content: 'Content' }];
