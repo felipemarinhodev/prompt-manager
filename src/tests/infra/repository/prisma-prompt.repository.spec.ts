@@ -1,8 +1,18 @@
+import { CreatePromptDTO } from '@/core/application/prompts/create-prompt.dto';
 import { Prompt } from '@/core/domain/prompts/prompt.entity';
 import { PrismaClient } from '@/generated/prisma/client';
 import { PrismaPromptRepository } from '@/infra/repository/prisma-prompt.repository';
+import { de } from '@faker-js/faker';
 
 type PromptDelegateMock = {
+  create: jest.MockedFunction<
+    (args: { dta: CreatePromptDTO }) => Promise<void>
+  >;
+  findFirst: jest.MockedFunction<
+    (args: {
+      where: { title: string };
+    }) => Promise<Pick<Prompt, 'id' | 'title' | 'content'> | null>
+  >;
   findMany: jest.MockedFunction<
     (args: {
       where?: {
@@ -23,6 +33,8 @@ type PrismaMock = {
 function createMockPrisma() {
   const mock: PrismaMock = {
     prompt: {
+      create: jest.fn(),
+      findFirst: jest.fn(),
       findMany: jest.fn(),
     },
   };
@@ -36,6 +48,38 @@ describe('PrismaPromptRepository', () => {
   beforeEach(() => {
     prisma = createMockPrisma();
     repository = new PrismaPromptRepository(prisma);
+  });
+
+  describe('create', () => {
+    it('should call the create method with the correct data', async () => {
+      const data: CreatePromptDTO = {
+        title: 'New Prompt',
+        content: 'New Content',
+      };
+      prisma.prompt.create.mockResolvedValue(undefined);
+
+      await repository.create(data);
+
+      expect(prisma.prompt.create).toHaveBeenCalledWith({ data });
+    });
+  });
+
+  describe('findByTitle', () => {
+    it('should call the findFirst method with the correct where clause and return the prompt', async () => {
+      const title = 'Existing Prompt';
+      const expectedPrompt: Pick<Prompt, 'id' | 'title' | 'content'> = {
+        id: '1',
+        title,
+        content: 'Content',
+      };
+      prisma.prompt.findFirst.mockResolvedValue(expectedPrompt);
+
+      const result = await repository.findByTitle(title);
+      expect(prisma.prompt.findFirst).toHaveBeenCalledWith({
+        where: { title },
+      });
+      expect(result).toEqual(expectedPrompt);
+    });
   });
 
   describe('findMany', () => {
