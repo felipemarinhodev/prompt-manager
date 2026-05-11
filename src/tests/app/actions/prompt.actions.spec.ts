@@ -25,7 +25,7 @@ describe('Server Actions: Prompt', () => {
     mockedCreateExecute.mockReset();
   });
 
-  describe.only('CreatePromptAction', () => {
+  describe('CreatePromptAction', () => {
     it('should create a prompt successfully', async () => {
       mockedCreateExecute.mockResolvedValue(undefined);
 
@@ -54,7 +54,6 @@ describe('Server Actions: Prompt', () => {
         content: ['O conteúdo é obrigatório'],
       });
     });
-
     it('should return an error when the prompt already exists', async () => {
       mockedCreateExecute.mockRejectedValue(new Error('PROMPT_ALREADY_EXISTS'));
 
@@ -67,6 +66,19 @@ describe('Server Actions: Prompt', () => {
 
       expect(result?.success).toBe(false);
       expect(result?.message).toBe('Este prompt já existe');
+    });
+    it('should return a generic error when the creation fails', async () => {
+      mockedCreateExecute.mockRejectedValue(new Error('UNKNOWN_ERROR'));
+
+      const data = {
+        title: 'New Prompt',
+        content: 'Content',
+      };
+
+      const result = await createPromptAction(data);
+
+      expect(result?.success).toBe(false);
+      expect(result?.message).toBe('Falha ao criar o prompt');
     });
   });
 
