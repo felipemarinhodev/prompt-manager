@@ -26,8 +26,6 @@ export const PromptForm = () => {
   const submit = async (data: CreatePromptDTO) => {
     const result = await createPromptAction(data);
 
-    console.log('submit - result:', result);
-
     if (!result.success) {
       toast.error(result.message);
       return;
