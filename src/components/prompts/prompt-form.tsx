@@ -12,6 +12,7 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 import { toast } from 'sonner';
+import { CopyButton } from '../button-actions';
 
 export const PromptForm = () => {
   const router = useRouter();
@@ -22,6 +23,8 @@ export const PromptForm = () => {
       content: '',
     },
   });
+
+  const content = form.watch('content');
 
   const submit = async (data: CreatePromptDTO) => {
     const result = await createPromptAction(data);
@@ -38,6 +41,7 @@ export const PromptForm = () => {
   return (
     <form className="space-y-6" onSubmit={form.handleSubmit(submit)}>
       <header className="flex flex-wrap gap-2 items-center mb-6 justify-end">
+        <CopyButton content={content} />
         <Button type="submit" size="sm">
           Salvar
         </Button>
