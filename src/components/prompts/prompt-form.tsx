@@ -7,7 +7,7 @@ import {
 } from '@/core/application/prompts/create-prompt.dto';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
@@ -24,7 +24,10 @@ export const PromptForm = () => {
     },
   });
 
-  const content = form.watch('content');
+  const content = useWatch({
+    control: form.control,
+    name: 'content',
+  });
 
   const submit = async (data: CreatePromptDTO) => {
     const result = await createPromptAction(data);
