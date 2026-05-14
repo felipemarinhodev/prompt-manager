@@ -52,27 +52,41 @@ export const PromptForm = () => {
       <Controller
         name="title"
         control={form.control}
-        render={({ field }) => (
-          <Input
-            {...field}
-            placeholder="Título do prompt"
-            variant="transparent"
-            size="lg"
-            autoFocus
-          />
+        render={({ field, fieldState }) => (
+          <>
+            <Input
+              {...field}
+              placeholder="Título do prompt"
+              variant="transparent"
+              size="lg"
+              autoFocus
+            />
+            {fieldState.error && (
+              <span className="text-sm text-red-500">
+                {fieldState.error.message}
+              </span>
+            )}
+          </>
         )}
       />
 
       <Controller
         name="content"
         control={form.control}
-        render={({ field }) => (
-          <Textarea
-            {...field}
-            placeholder="Digite o conteúdo do prompt..."
-            variant="transparent"
-            size="lg"
-          />
+        render={({ field, fieldState }) => (
+          <>
+            <Textarea
+              {...field}
+              placeholder="Digite o conteúdo do prompt..."
+              variant="transparent"
+              size="lg"
+            />
+            {fieldState.error && (
+              <span className="text-sm text-red-500">
+                {fieldState.error.message}
+              </span>
+            )}
+          </>
         )}
       />
     </form>
