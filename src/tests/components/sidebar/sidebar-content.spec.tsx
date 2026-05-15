@@ -2,7 +2,7 @@ import {
   SidebarContent,
   type SidebarContentProps,
 } from '@/components/sidebar/sidebar-content';
-import { render, screen } from '@/lib/test-utils';
+import { render, screen, waitFor } from '@/lib/test-utils';
 import userEvent from '@testing-library/user-event';
 
 jest.mock('@/app/actions/prompt.actions', () => ({
@@ -218,13 +218,13 @@ describe('SidebarContent', () => {
     submitSpy.mockRestore();
   });
 
-  it('should initialize the search field with the query from the URL', () => {
+  it('should initialize the search field with the query from the URL', async () => {
     const text = 'ABC';
     const searchParams = new URLSearchParams(`q=${text}`);
     mockSearchParams = searchParams;
     makeSut();
 
     const searchInput = screen.getByPlaceholderText(/buscar prompts.../i);
-    expect(searchInput).toHaveValue(text);
+    await waitFor(() => expect(searchInput).toHaveValue(text));
   });
 });
