@@ -23,7 +23,7 @@ test('should edit a prompt successfully through UI', async ({ page }) => {
 
   await page.goto(`/${created.id}`);
 
-  expect(page.getByPlaceholder('Titulo do prompt')).toBeVisible();
+  await expect(page.getByPlaceholder('Título do prompt')).toBeVisible();
   await page.fill('input[name="title"]', updatedTitle);
   await page.fill('textarea[name="content"]', updatedContent);
   await page.getByRole('button', { name: 'Salvar' }).click();
