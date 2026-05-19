@@ -7,4 +7,5 @@ export interface PromptRepository {
   findByTitle(title: string): Promise<Prompt | null>;
   findMany(): Promise<Prompt[]>;
   searchMany(term: string): Promise<Prompt[]>;
+  update(id: string, data: Partial<CreatePromptDTO>): Promise<Prompt>;
 }
