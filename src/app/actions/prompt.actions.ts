@@ -8,14 +8,26 @@ import {
 } from '@/core/application/prompts/create-prompt.dto';
 import { CreatePromptUseCase } from '@/core/application/prompts/create-prompt.use-case';
 import { SearchPromptsUseCase } from '@/core/application/prompts/search-prompts.use-case';
+import {
+  UpdatePromptDTO,
+  updatePromptDtoSchema,
+} from '@/core/application/prompts/update-prompt.dto';
+import { UpdatePromptUseCase } from '@/core/application/prompts/update-prompt.use-case';
 import type { PromptSummary } from '@/core/domain/prompts/prompt.entity';
 import { PrismaPromptRepository } from '@/infra/repository/prisma-prompt.repository';
 import z from 'zod';
 
 type SearchFormState = {
-  success: boolean;
-  prompts?: PromptSummary[];
   message?: string;
+  prompts?: PromptSummary[];
+  success: boolean;
+};
+
+type FormState = {
+  errors?: unknown;
+  message?: string;
+  prompts?: PromptSummary[];
+  success: boolean;
 };
 
 export async function createPromptAction(data: CreatePromptDTO) {
@@ -55,6 +67,45 @@ export async function createPromptAction(data: CreatePromptDTO) {
     success: true,
     message: 'Prompt criado com sucesso',
   };
+}
+
+export async function updatePromptAction(
+  data: UpdatePromptDTO
+): Promise<FormState> {
+  const validated = updatePromptDtoSchema.safeParse(data);
+
+  if (!validated.success) {
+    const { fieldErrors } = z.flattenError(validated.error);
+    return {
+      success: false,
+      message: 'Erro de validação',
+      errors: fieldErrors,
+    };
+  }
+
+  try {
+    const repository = new PrismaPromptRepository(prisma);
+    const useCase = new UpdatePromptUseCase(repository);
+    await useCase.execute(validated.data);
+
+    return {
+      success: true,
+      message: 'Prompt atualizado com sucesso',
+    };
+  } catch (error) {
+    const _error = error as Error;
+    if (_error.message === 'PROMPT_NOT_FOUND') {
+      return {
+        success: false,
+        message: 'Prompt não encontrado',
+      };
+    }
+
+    return {
+      success: false,
+      message: 'Falha ao atualizar o prompt',
+    };
+  }
 }
 
 export async function searchPromptAction(
