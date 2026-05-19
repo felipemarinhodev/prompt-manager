@@ -13,8 +13,13 @@ import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 import { toast } from 'sonner';
 import { CopyButton } from '../button-actions';
+import { Prompt } from '@/core/domain/prompts/prompt.entity';
 
-export const PromptForm = () => {
+export type PromptFormProps = {
+  prompt?: Prompt | null;
+};
+
+export const PromptForm = ({ prompt }: PromptFormProps) => {
   const router = useRouter();
   const form = useForm<CreatePromptDTO>({
     resolver: zodResolver(createPromptSchema),
