@@ -1,6 +1,5 @@
 import { CreatePromptUseCase } from '@/core/application/prompts/create-prompt.use-case';
 import { PromptRepository } from '@/core/domain/prompts/prompt.repository';
-import { create } from 'domain';
 
 const makeRepository = (overrides: Partial<PromptRepository>) => {
   const base = {
