@@ -57,4 +57,15 @@ describe('PromptCard', () => {
 
     expect(pushMock).toHaveBeenCalledWith(`/${prompt.id}`);
   });
+
+  it('should open the dialog when the deletion is clicked', async () => {
+    makeSut({ prompt });
+
+    const deleteButton = screen.getByRole('button', {
+      name: /remover prompt/i,
+    });
+    await user.click(deleteButton);
+
+    expect(screen.getByText('Remover Prompt')).toBeInTheDocument();
+  });
 });
