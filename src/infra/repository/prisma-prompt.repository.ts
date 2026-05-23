@@ -55,7 +55,7 @@ export class PrismaPromptRepository implements PromptRepository {
     return prompts;
   }
 
-  update(id: string, data: Partial<CreatePromptDTO>): Promise<Prompt> {
+  async update(id: string, data: Partial<CreatePromptDTO>): Promise<Prompt> {
     return this.prisma.prompt.update({
       where: { id },
       data: {
