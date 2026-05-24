@@ -1,10 +1,11 @@
 'use client';
 
+import { deletePromptAction } from '@/app/actions/prompt.actions';
 import { PromptSummary } from '@/core/domain/prompts/prompt.entity';
-import Link from 'next/link';
-import { Button } from '../ui/button';
 import { Trash as DeleteIcon, Loader2 as LoadingIcon } from 'lucide-react';
+import Link from 'next/link';
 import { useState } from 'react';
+import { toast } from 'sonner';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,7 +17,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '../ui/alert-dialog';
-import { toast } from 'sonner';
+import { Button } from '../ui/button';
 
 export type PromptCardProps = {
   prompt: PromptSummary;
@@ -26,7 +27,20 @@ export const PromptCard = ({ prompt }: PromptCardProps) => {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDelete = async () => {
-    toast.success('Prompt removido com sucesso!');
+    setIsDeleting(true);
+    try {
+      const result = await deletePromptAction(prompt.id);
+
+      if (!result.success) {
+        toast.error(result.message);
+      }
+      toast.success(result.message);
+    } catch (error) {
+      const _error = error as Error;
+      toast.error(_error.message);
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
