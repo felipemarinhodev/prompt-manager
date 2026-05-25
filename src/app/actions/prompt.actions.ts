@@ -16,6 +16,7 @@ import { UpdatePromptUseCase } from '@/core/application/prompts/update-prompt.us
 import type { PromptSummary } from '@/core/domain/prompts/prompt.entity';
 import { PrismaPromptRepository } from '@/infra/repository/prisma-prompt.repository';
 import z from 'zod';
+import { DeletePromptUseCase } from '@/core/application/prompts/delete-prompt.use-case';
 
 type SearchFormState = {
   message?: string;
@@ -77,7 +78,7 @@ export async function deletePromptAction(id: string): Promise<FormState> {
   try {
     const repository = new PrismaPromptRepository(prisma);
     const useCase = new DeletePromptUseCase(repository);
-    await useCase.execute({ id });
+    await useCase.execute(id);
 
     return {
       success: true,
