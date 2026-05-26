@@ -1,5 +1,6 @@
 import {
   createPromptAction,
+  deletePromptAction,
   searchPromptAction,
   updatePromptAction,
 } from '@/app/actions/prompt.actions';
@@ -28,11 +29,19 @@ jest.mock('@/core/application/prompts/update-prompt.use-case', () => ({
   })),
 }));
 
+const mockedDeleteExecute = jest.fn();
+jest.mock('@/core/application/prompts/delete-prompt.use-case', () => ({
+  DeletePromptUseCase: jest.fn().mockImplementation(() => ({
+    execute: mockedDeleteExecute,
+  })),
+}));
+
 describe('Server Actions: Prompt', () => {
   beforeEach(() => {
     mockedSearchExecute.mockReset();
     mockedCreateExecute.mockReset();
     mockedUpdateExecute.mockReset();
+    mockedDeleteExecute.mockReset();
   });
 
   describe('CreatePromptAction', () => {
@@ -89,6 +98,43 @@ describe('Server Actions: Prompt', () => {
 
       expect(result?.success).toBe(false);
       expect(result?.message).toBe('Falha ao criar o prompt');
+    });
+  });
+
+  describe('DeletePromptAction', () => {
+    it('should throw an Error when the id was empty', async () => {
+      const promptId = '';
+      const result = await deletePromptAction(promptId);
+
+      expect(result.success).toBe(false);
+      expect(result.message).toBe('ID do prompt é obrigatório');
+    });
+    it('should return an error when the prompt does not exist', async () => {
+      mockedDeleteExecute.mockRejectedValue(new Error('PROMPT_NOT_FOUND'));
+
+      const promptId = 'non-existing-id';
+      const result = await deletePromptAction(promptId);
+
+      expect(result.success).toBe(false);
+      expect(result.message).toBe('Prompt não encontrado');
+    });
+    it('should return a generic error when the deletion fails', async () => {
+      mockedDeleteExecute.mockRejectedValue(new Error('UNKNOWN_ERROR'));
+
+      const promptId = 'some-id';
+      const result = await deletePromptAction(promptId);
+
+      expect(result.success).toBe(false);
+      expect(result.message).toBe('Falha ao remover o prompt');
+    });
+    it('should delete with success', async () => {
+      mockedDeleteExecute.mockResolvedValue(undefined);
+
+      const promptId = 'existing-id';
+      const result = await deletePromptAction(promptId);
+
+      expect(result.success).toBe(true);
+      expect(result.message).toBe('Prompt removido com sucesso!');
     });
   });
 
