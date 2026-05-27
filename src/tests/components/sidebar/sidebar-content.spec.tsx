@@ -76,6 +76,25 @@ describe('SidebarContent', () => {
     });
   });
 
+  describe('SidebarContent - Responsiveness', () => {
+    it('should render the button to open the menu on mobile and open and close the menu when clicked', async () => {
+      makeSut();
+
+      const aside = screen.getByRole('complementary');
+      expect(aside.className).toMatch('-translate-x-full');
+
+      const openButton = screen.getByRole('button', { name: /abrir menu/i });
+      await user.click(openButton);
+
+      expect(aside.className).toMatch('translate-x-0');
+
+      const closeButton = screen.getByRole('button', { name: /fechar menu/i });
+      await user.click(closeButton);
+
+      expect(aside.className).toMatch('-translate-x-full');
+    });
+  });
+
   describe('SidebarContent - Collapsed State', () => {
     it('should render the expanded and show the button to minimize', () => {
       makeSut();
