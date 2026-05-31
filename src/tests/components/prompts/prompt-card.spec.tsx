@@ -46,11 +46,24 @@ jest.mock('next/link', () => {
   };
 });
 
+const refreshMock = jest.fn();
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({ refresh: refreshMock }),
+}));
+
 const makeSut = ({ prompt }: PromptCardProps) => {
   return render(<PromptCard prompt={prompt} />);
 };
 
 describe('PromptCard', () => {
+  beforeEach(() => {
+    deleteMock.mockReset();
+    pushMock.mockReset();
+    refreshMock.mockReset();
+    (toast.success as jest.Mock).mockReset();
+    (toast.error as jest.Mock).mockReset();
+  });
+
   const user = userEvent.setup();
 
   const prompt = { id: '1', title: 'Test Prompt', content: 'Test Content' };
@@ -99,6 +112,7 @@ describe('PromptCard', () => {
     );
 
     expect(toast.success).toHaveBeenCalledWith('Prompt removido com sucesso!');
+    expect(refreshMock).toHaveBeenCalledTimes(1);
   });
 
   it('should show an error message(Toast) when the action fails', async () => {
@@ -118,12 +132,13 @@ describe('PromptCard', () => {
     );
 
     expect(toast.error).toHaveBeenCalledWith(errorMessage);
+    expect(refreshMock).not.toHaveBeenCalled();
   });
 
   it('should fail to remove and show an error message(Toast)', async () => {
     const errorMessage = 'Erro ao remover o prompt';
     deleteMock.mockRejectedValue(new Error(errorMessage));
-    render(<PromptCard prompt={prompt} />);
+    makeSut({ prompt });
 
     await user.click(screen.getByRole('button'));
 
@@ -132,5 +147,6 @@ describe('PromptCard', () => {
     );
 
     expect(toast.error).toHaveBeenCalledWith(errorMessage);
+    expect(refreshMock).not.toHaveBeenCalled();
   });
 });
