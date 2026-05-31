@@ -4,6 +4,7 @@ import {
 } from '@/components/sidebar/sidebar-content';
 import { render, screen, waitFor } from '@/lib/test-utils';
 import userEvent from '@testing-library/user-event';
+import { useState } from 'react';
 
 jest.mock('@/app/actions/prompt.actions', () => ({
   searchPromptAction: jest
@@ -12,13 +13,23 @@ jest.mock('@/app/actions/prompt.actions', () => ({
 }));
 
 const pushMock = jest.fn();
-let mockSearchParams = new URLSearchParams();
 
 jest.mock('next/navigation', () => ({
-  useRouter: () => ({
-    push: pushMock,
-  }),
-  useSearchParams: () => mockSearchParams,
+  useRouter: () => ({ push: pushMock }),
+}));
+
+const setQueryMock = jest.fn();
+let mockSearchParams = new URLSearchParams();
+
+jest.mock('nuqs', () => ({
+  useQueryState: (key: string) => {
+    const [value, setValue] = useState(mockSearchParams.get(key) ?? '');
+    const setQuery = (nextValue: string) => {
+      setQueryMock(nextValue);
+      setValue(nextValue);
+    };
+    return [value, setQuery] as const;
+  },
 }));
 
 const initialPrompts = [
@@ -195,10 +206,14 @@ describe('SidebarContent', () => {
 
       const searchInput = screen.getByPlaceholderText(/buscar prompts.../i);
       await user.type(searchInput, text);
-      expect(pushMock).toHaveBeenCalled();
+      expect(setQueryMock).toHaveBeenCalled();
 
-      const lastCall = pushMock.mock.calls.at(-1);
-      expect(lastCall?.[0]).toBe('/?q=A%20B');
+      const lastCall = setQueryMock.mock.calls.at(-1);
+      expect(lastCall?.[0]).toBe(text);
+
+      await user.clear(searchInput);
+      const lastClearCall = setQueryMock.mock.calls.at(-1);
+      expect(lastClearCall?.[0]).toBe('');
     });
     it('should submit the form when the user types in the search field', async () => {
       const submitSpy = jest
@@ -218,8 +233,8 @@ describe('SidebarContent', () => {
       await user.type(searchInput, text);
       await user.clear(searchInput);
 
-      const lastCall = pushMock.mock.calls.at(-1);
-      expect(lastCall?.[0]).toBe('/');
+      const lastCall = setQueryMock.mock.calls.at(-1);
+      expect(lastCall?.[0]).toBe('');
     });
   });
 
