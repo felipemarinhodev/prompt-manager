@@ -3,6 +3,7 @@ import '@/styles/globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { Toaster } from 'sonner';
+import { NuqsAdapter } from 'nuqs/adapters/next/app';
 
 export const metadata: Metadata = {
   title: 'Prompt Manager',
@@ -24,13 +25,15 @@ export default function RootLayout({
       <body
         className={`${inter.variable} antialiased bg-gray-900 text-white flex h-screen`}
       >
-        <Sidebar />
-        <main className="relative flex-1 overflow-auto min-w-0">
-          <div className="p-4 sm:p-6 md:p-8 max-w-full md:max-w-3xl mx-auto h-full">
-            {children}
-          </div>
-        </main>
-        <Toaster position="top-right" />
+        <NuqsAdapter>
+          <Sidebar />
+          <main className="relative flex-1 overflow-auto min-w-0">
+            <div className="p-4 sm:p-6 md:p-8 max-w-full md:max-w-3xl mx-auto h-full">
+              {children}
+            </div>
+          </main>
+          <Toaster position="top-right" />
+        </NuqsAdapter>
       </body>
     </html>
   );
