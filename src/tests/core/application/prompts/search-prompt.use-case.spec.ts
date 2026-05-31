@@ -20,7 +20,7 @@ describe('SearchPromptAction', () => {
     },
   ];
 
-  const repository: PromptRepository = {
+  const repository = {
     findMany: async () => input,
     searchMany: async (term) =>
       input.filter(
@@ -28,7 +28,7 @@ describe('SearchPromptAction', () => {
           prompt.title.toLowerCase().includes(term.toLowerCase()) ||
           prompt.content.toLowerCase().includes(term.toLowerCase())
       ),
-  };
+  } as PromptRepository;
   it('should return all prompts when the search term is empty', async () => {
     const useCase = new SearchPromptsUseCase(repository);
     const result = await useCase.execute('');
