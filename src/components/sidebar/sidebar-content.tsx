@@ -1,5 +1,17 @@
 'use client';
 
+import { searchPromptAction } from '@/app/actions/prompt.actions';
+import { PromptSummary } from '@/core/domain/prompts/prompt.entity';
+import {
+  Plus as AddIcon,
+  ArrowLeftToLine,
+  ArrowRightToLine,
+  X as CloseButton,
+  Menu,
+} from 'lucide-react';
+import { motion } from 'motion/react';
+import { useRouter } from 'next/navigation';
+import { useQueryState } from 'nuqs';
 import {
   startTransition,
   useActionState,
@@ -7,22 +19,11 @@ import {
   useRef,
   useState,
 } from 'react';
-import { Button } from '../ui/button';
-import {
-  ArrowLeftToLine,
-  X as CloseButton,
-  Plus as AddIcon,
-  ArrowRightToLine,
-  Menu,
-} from 'lucide-react';
-import { useRouter, useSearchParams } from 'next/navigation';
 import { Logo } from '../logo';
-import { Input } from '../ui/input';
-import { PromptSummary } from '@/core/domain/prompts/prompt.entity';
 import { PromptList } from '../prompts';
-import { searchPromptAction } from '@/app/actions/prompt.actions';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
 import { Spinner } from '../ui/spinner';
-import { motion } from 'motion/react';
 
 export type SidebarContentProps = {
   prompts: PromptSummary[];
@@ -31,14 +32,14 @@ export type SidebarContentProps = {
 export const SidebarContent = ({ prompts }: SidebarContentProps) => {
   const formRef = useRef<HTMLFormElement | null>(null);
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   const [searchState, searchAction, isPending] = useActionState(
     searchPromptAction,
     { success: true, prompts: [] }
   );
 
-  const [query, setQuery] = useState(searchParams.get('q') || '');
+  // const [query, setQuery] = useState(searchParams.get('q') || '');
+  const [query, setQuery] = useQueryState('q', { defaultValue: '' });
 
   const hasQuery = query.trim().length > 0;
   const promptsList = hasQuery ? (searchState.prompts ?? prompts) : prompts;
@@ -60,9 +61,6 @@ export const SidebarContent = ({ prompts }: SidebarContentProps) => {
     const newQuery = event.target.value;
     setQuery(newQuery);
     startTransition(() => {
-      const url = newQuery ? `/?q=${encodeURIComponent(newQuery)}` : '/';
-      router.push(url, { scroll: false });
-
       formRef.current?.requestSubmit();
     });
   };
