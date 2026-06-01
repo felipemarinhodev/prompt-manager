@@ -4,6 +4,7 @@ import {
   searchPromptAction,
   updatePromptAction,
 } from '@/app/actions/prompt.actions';
+import { revalidatePath } from 'next/cache';
 
 jest.mock('@/lib/prisma', () => ({ prisma: {} }));
 
@@ -36,12 +37,17 @@ jest.mock('@/core/application/prompts/delete-prompt.use-case', () => ({
   })),
 }));
 
+jest.mock('next/cache', () => ({
+  revalidatePath: jest.fn(),
+}));
+
 describe('Server Actions: Prompt', () => {
   beforeEach(() => {
     mockedSearchExecute.mockReset();
     mockedCreateExecute.mockReset();
     mockedUpdateExecute.mockReset();
     mockedDeleteExecute.mockReset();
+    (revalidatePath as jest.Mock).mockReset();
   });
 
   describe('CreatePromptAction', () => {
@@ -57,6 +63,7 @@ describe('Server Actions: Prompt', () => {
       expect(mockedCreateExecute).toHaveBeenCalledWith(data);
       expect(result?.success).toBe(true);
       expect(result?.message).toBe('Prompt criado com sucesso');
+      expect(revalidatePath).toHaveBeenCalledTimes(1);
     });
     it('should return an validation error when the data is empty', async () => {
       const data = {
@@ -135,6 +142,7 @@ describe('Server Actions: Prompt', () => {
 
       expect(result.success).toBe(true);
       expect(result.message).toBe('Prompt removido com sucesso!');
+      expect(revalidatePath).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -227,6 +235,7 @@ describe('Server Actions: Prompt', () => {
         success: true,
         message: 'Prompt atualizado com sucesso',
       });
+      expect(revalidatePath).toHaveBeenCalledTimes(1);
     });
     it('should return error when the fields are not provided', async () => {
       const data = {
