@@ -5,6 +5,8 @@ jobs:
   build:
     name: Validar código e Gerar Build
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
     steps:
       - name: Checkout do Repositório
