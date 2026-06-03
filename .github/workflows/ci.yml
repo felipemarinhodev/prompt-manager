@@ -33,7 +33,7 @@ jobs:
           node-version: 22.x
 
       - name: Instalar npm/Dependências
-        run: npm install
+        run: npm ci
 
       - name: Gerar Cliente do Prisma
         run: npm run db:generate
