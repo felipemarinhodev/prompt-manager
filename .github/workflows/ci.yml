@@ -1,0 +1,51 @@
+name: CI [Continuous Integration]
+on: [pull_request]
+
+jobs:
+  build:
+    name: Validar código e Gerar Build
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres?schema=public
+
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+
+      - name: Instalar npm/Dependências
+        run: npm ci
+
+      - name: Gerar Cliente do Prisma
+        run: npm run db:generate
+
+      - name: Rodar Linter
+        run: npm run lint
+
+      - name: Checagem de Tipagem (Typecheck)
+        run: npm run typecheck
+
+      - name: Rodar Testes de unidade
+        run: npm run test:coverage
+
+      - name: Gerar build de produção
+        run: npm run build
