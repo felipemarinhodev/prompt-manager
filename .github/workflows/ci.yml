@@ -1,0 +1,31 @@
+name: CI [Continuous Integration]
+on: [pull_request]
+
+jobs:
+  build:
+    name: Validar código e Gerar Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+
+      - name: Instalar npm/Dependências
+        run: npm install --frozen-lockfile
+
+      - name: Rodar Linter
+        run: npm run lint
+
+      - name: Checagem de Tipagem (Typecheck)
+        run: npm run typecheck
+
+      - name: Rodar Testes de unidade
+        run: npm test:coverage
+
+      - name: Gerar build de produção
+        run: npm run build
