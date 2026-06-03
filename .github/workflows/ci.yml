@@ -18,6 +18,9 @@ jobs:
       - name: Instalar npm/Dependências
         run: npm install --frozen-lockfile
 
+      - name: Gerar Cliente do Prisma
+        run: npm run db:generate
+
       - name: Rodar Linter
         run: npm run lint
 
